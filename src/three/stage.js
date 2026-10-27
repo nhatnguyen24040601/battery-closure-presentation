@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export const clamp01 = (x) => Math.min(1, Math.max(0, x));
@@ -30,6 +29,25 @@ export function camKeys(camera, t, keys) {
   camera.userData.target = _p.clone();
 }
 
+/** a small photo studio for reflections: dark room, overhead softbox, two side strips, a rim strip */
+function studioEnv() {
+  const s = new THREE.Scene();
+  s.add(new THREE.Mesh(new THREE.SphereGeometry(30, 32, 16), new THREE.MeshBasicMaterial({ color: 0x1a2a44, side: THREE.BackSide })));
+  const panel = (w, h, color, k, x, y, z) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(color).multiplyScalar(k), side: THREE.DoubleSide }));
+    m.position.set(x, y, z);
+    m.lookAt(0, 0, 0);
+    s.add(m);
+  };
+  panel(14, 8, 0xffffff, 5, 0, 10, 0);
+  panel(4, 10, 0xdce8ff, 6, -10, 3, 6);
+  panel(10, 3, 0xffffff, 3, 2, 4, 11);
+  panel(2.5, 10, 0xffe4c8, 4, 10, 2, -2);
+  panel(16, 1.4, 0xbfd4ff, 3, 0, 3, -11);
+  panel(14, 6, 0x24364f, 1, 0, -8, 0);
+  return s;
+}
+
 function radialTexture() {
   const c = document.createElement('canvas');
   c.width = c.height = 256;
@@ -54,15 +72,15 @@ export class Stage {
       return;
     }
     const r = this.renderer;
-    r.toneMapping = THREE.ACESFilmicToneMapping;
-    r.toneMappingExposure = 1.05;
+    r.toneMapping = THREE.NeutralToneMapping; // keeps the palette colours true
+    r.toneMappingExposure = 1.0;
     r.localClippingEnabled = true;
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFShadowMap;
     r.setClearColor(0x000000, 0);
     this.low = false;
     this.pmrem = new THREE.PMREMGenerator(r);
-    this.env = this.pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    this.env = this.pmrem.fromScene(studioEnv(), 0.03).texture;
     this.glow = radialTexture();
     this.timer = new THREE.Timer();
     this.timer.connect(document);
@@ -91,7 +109,7 @@ export class Stage {
   makeScene({ ground = null, key = 3, exposure = 1 } = {}) {
     const scene = new THREE.Scene();
     scene.environment = this.env;
-    scene.environmentIntensity = 0.75 * exposure;
+    scene.environmentIntensity = 1.7 * exposure;
     const sun = new THREE.DirectionalLight(0xffffff, key);
     sun.position.set(2.2, 4, 2.4);
     sun.castShadow = true;
@@ -100,7 +118,10 @@ export class Stage {
     sun.shadow.bias = -0.0004;
     sun.shadow.normalBias = 0.01;
     scene.add(sun);
-    scene.add(new THREE.HemisphereLight(0x9fb6ff, 0x101820, 0.55 * exposure));
+    scene.add(new THREE.HemisphereLight(0x9fb6ff, 0x101820, 0.45 * exposure));
+    const rim = new THREE.DirectionalLight(0x9fc0ff, 1.1 * exposure); // cool back light separates the edges from the background
+    rim.position.set(-3, 2, -3.5);
+    scene.add(rim);
     if (ground !== null) {
       const disc = new THREE.Mesh(
         new THREE.PlaneGeometry(9, 9),
