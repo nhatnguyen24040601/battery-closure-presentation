@@ -11,7 +11,7 @@ export function tbl(head, rows, { cls = '', rowAttr = () => '' } = {}) {
 
 /** the 3D slot; the note is the accuracy caption required by the plan */
 export const slot = (note, style = '', cls = '') =>
-  `<div class="stage3d ${cls}" style="${style}">${note ? `<div class="note3d">${note}</div>` : ''}<div class="replay3d">R = replay step · drag = orbit</div></div>`;
+  `<div class="stage3d ${cls}" style="${style}">${note ? `<div class="note3d">${note}</div>` : ''}</div>`;
 
 export const meta = {
   author: 'Nguyen Ngoc Nhat',

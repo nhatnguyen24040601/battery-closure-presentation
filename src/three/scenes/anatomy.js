@@ -45,52 +45,56 @@ export default {
     const sealLab = stage.addLabel('', pack.anchors.Seal, { cls: 'warn big' });
     const ventLab = stage.addLabel('vent opens at 150 ± 50 mbar [89]', pack.anchors.Vent, { cls: 'good big' });
 
-    const st = { manual: null, last: null };
+    const st = { manual: null, last: null, a: 0, txt: '', tgt: null, s: 0, gl: {} }; // eased: label alpha/text, slice fade, glow per part
     const inst = {
       scene, camera, pickables: [pack.group],
       onPick(name) { st.manual = name; },
       reset() { st.manual = null; st.last = null; },
-      update(t) {
+      update(t, dt = 0) {
+        const k = dt ? 1 - Math.exp(-dt * 7) : 1;
         const e = seg(t, 0, 1.2);
         // closing sequence (11.2 -> 17): lid comes down, seal is squeezed, vent pops open
         const close = seg(t, 11.4, 13.6), press = seg(t, 12.6, 14);
         const per = st.manual ? {} : { Lid: 1 - close, Barrier: 1 - close * 0.6, Seal: 1 - close, Cells: 1 - close * 0.5, CrossMember: 1 - close * 0.5 };
         pack.explode(e, per);
-        pack.focus(null);
         pack.glow('all', 0, 0);
         pack.flow(t);
         pack.sealPress(st.manual ? 1 : press);
         pack.ventOpen(st.manual ? 0 : seg(t, 14.6, 15.4));
         pack.clip(null);
         sealLab.alpha = ventLab.alpha = 0;
-        slice.visible = false;
         const pulse = 0.5 + 0.5 * Math.sin(t * 5);
-        let names = null, text = '', phase = -1;
+        let names = null, text = '', phase = -1, tgt = null, focusN = null, focusD = 0.12, sliceOn = false;
 
         if (st.manual) {
           names = st.manual === 'Sill_R' ? ['Sill_L', 'Sill_R'] : [st.manual];
           text = JOB[st.manual];
-          lab.target = pack.anchors[st.manual];
+          tgt = pack.anchors[st.manual];
         } else {
-          SEQ.forEach((s, i) => { if (t >= s.a && t < s.b) { names = s.names; text = s.text; phase = i; lab.target = pack.anchors[s.names[0]]; } });
-          if (t >= 1.0 && t < 3.4) { slice.visible = true; pack.clip(null); }
+          SEQ.forEach((s, i) => { if (t >= s.a && t < s.b) { names = s.names; text = s.text; phase = i; tgt = pack.anchors[s.names[0]]; } });
+          sliceOn = t >= 1.0 && t < 3.4;
           if (t >= 11.4) {
             phase = 5;
             names = ['Seal', 'Lid', 'Sill_R', 'Sill_L', 'Tray', 'Vent'];
-            pack.focus(['Seal', 'Vent', 'Sill_R', 'Tray', 'Sill_L'], 0.18);
+            focusN = ['Seal', 'Vent', 'Sill_R', 'Tray', 'Sill_L']; focusD = 0.18;
             if (t < 14.5) { text = ''; sealLab.alpha = seg(t, 12.6, 13.2); sealLab.setText(`seal bead ${(6 - 2 * press).toFixed(1)} mm`); }
             ventLab.alpha = seg(t, 14.8, 15.4);
-            lab.alpha = 0;
           }
         }
-        if (names && phase < 5) {
-          pack.focus(names, 0.14);
-          for (const n of names) pack.glow(n, 0xffffff, 0.12 + 0.12 * pulse);
-          slice.visible = slice.visible && names.includes('Tray');
+        if (names && phase < 5) { focusN = names; focusD = 0.14; }
+        pack.focus(focusN, focusD, dt);
+        for (const n of Object.keys(JOB)) {
+          const to = names && phase < 5 && names.includes(n) ? 0.12 + 0.12 * pulse : 0;
+          st.gl[n] = (st.gl[n] ?? 0) + (to - (st.gl[n] ?? 0)) * k;
+          if (st.gl[n] > 0.002) pack.glow(n, 0xffffff, st.gl[n]);
         }
-        if (phase < 5) lab.alpha = text ? 1 : 0;
-        sliceLab.alpha = slice.visible ? 1 : 0;
-        lab.setText(text);
+        // fade the label out, swap its text/anchor while invisible, fade in
+        const show = phase < 5 && text;
+        if (show && text !== st.txt && st.a < 0.05) { st.txt = text; st.tgt = tgt; }
+        st.a += ((show && text === st.txt ? 1 : 0) - st.a) * k;
+        lab.setText(st.txt); lab.target = st.tgt ?? lab.target; lab.alpha = st.a;
+        st.s += ((sliceOn && !st.manual ? 1 : 0) - st.s) * k;
+        slice.material.opacity = st.s; slice.visible = st.s > 0.01; sliceLab.alpha = st.s;
         const key = st.manual ?? (phase >= 0 ? SEQ[phase]?.names[0] ?? 'Seal' : null);
         if (key !== st.last) { st.last = key; stage.onPick?.(key ?? ''); }
         stage.setPhase(st.manual ? -1 : phase);

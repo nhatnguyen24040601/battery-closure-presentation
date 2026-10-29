@@ -76,7 +76,7 @@ export class Stage {
     r.toneMappingExposure = 1.0;
     r.localClippingEnabled = true;
     r.shadowMap.enabled = true;
-    r.shadowMap.type = THREE.PCFShadowMap;
+    r.shadowMap.type = THREE.PCFSoftShadowMap;
     r.setClearColor(0x000000, 0);
     this.low = false;
     this.pmrem = new THREE.PMREMGenerator(r);

@@ -66,8 +66,9 @@ const els = slides.map((s, i) => {
   sec.className = `slide ${s.layout || ''}`;
   sec.dataset.i = i;
   sec.dataset.step = 0;
-  const hd = s.layout === 'title' ? '' : `<div class="hd"><div class="kicker">${s.part}</div><h2>${s.title}</h2></div>`;
-  const ft = s.layout === 'title' ? '' : `<div class="ft"><span class="src">${s.sources || ''}</span><span class="n">${s.sec ? i + 1 : 'Backup'}</span></div>`;
+  const bare = s.layout === 'title' || s.layout === 'section';
+  const hd = bare ? '' : `<div class="hd"><div class="kicker">${s.part}</div><h2>${s.title}</h2></div>`;
+  const ft = bare ? '' : `<div class="ft"><span class="src">${s.sources || ''}</span><span class="n">${s.sec ? i + 1 : 'Backup'}</span></div>`;
   sec.innerHTML = `${hd}<div class="bd">${s.html}</div>${ft}`;
   deck.appendChild(sec);
   return sec;

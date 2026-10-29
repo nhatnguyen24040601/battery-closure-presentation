@@ -224,7 +224,7 @@ table.tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size
 .slide.title { padding: 0; }
 .slide.title .bd { margin: 0; padding: 0; position: absolute; inset: 0; }
 .slide.title .stage3d { position: absolute; inset: 0; border: 0; border-radius: 0; background: none; }
-.slide.title .ttl { position: absolute; left: 110px; top: 190px; width: 1020px; z-index: 4; pointer-events: none; }
+.slide.title .ttl { position: absolute; left: 110px; top: 190px; width: 760px; z-index: 4; pointer-events: none; }
 .slide.title .ttl .k { font-size: 24px; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
 .slide.title .ttl h1 { font-size: 96px; line-height: 1.02; margin: 20px 0 22px; font-weight: 800; letter-spacing: -.03em; text-shadow: 0 4px 40px rgba(0, 0, 0, .6); }
 .slide.title .ttl h1 em { font-style: normal; background: linear-gradient(90deg, #5eead4, #60a5fa); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -248,3 +248,14 @@ table.tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size
 .gloss .tbl th, .gloss .tbl td { font-size: 16.5px; padding: 3px 8px; line-height: 1.2; }
 .tbl.big td { padding: 36px 20px; } .tbl.big th { font-size: 24px; }
 .tbl.sm td, table.tbl.sm { vertical-align: middle; }
+
+
+/* ---- section divider / thank-you slides ---- */
+.slide.section { padding: 0; }
+.slide.section .bd { margin: 0; padding: 0; position: absolute; inset: 0; display: grid; place-items: center; }
+.slide.section .sec { text-align: center; }
+.slide.section .sec .k { font-size: 34px; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+.slide.section .sec h1 { font-size: 120px; line-height: 1.05; margin: 28px 0 0; font-weight: 800; letter-spacing: -.03em; }
+.slide.section .sec p { font-size: 48px; color: #c9d7ef; margin: 24px 0 0; }
+.slide.section .sec .who { margin-top: 90px; font-size: 26px; color: var(--mute); }
+.slide.section .sec .who b { color: var(--ink); }

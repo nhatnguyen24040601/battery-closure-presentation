@@ -112,6 +112,7 @@ export function buildPack() {
     shield: finish.alu(C.shield, { metalness: 0.95, roughness: 0.34 }),
     vent: finish.metal(C.vent, { roughness: 0.22 }),
     bolt: finish.metal(0x2b2f36, { roughness: 0.38 }),
+    hv: finish.plastic(0xf26a1b, { roughness: 0.45, clearcoat: 0.3 }),
     coolant: finish.plastic(C.coolant, { roughness: 0.2, clearcoat: 1, opacity: 0.85 }),
     label: new THREE.MeshStandardMaterial({ map: labelTexture(), roughness: 0.55, metalness: 0, transparent: true, polygonOffset: true, polygonOffsetFactor: -2 }),
   };
@@ -150,7 +151,9 @@ export function buildPack() {
   const wallGeo = worldUV(rbox(0.02, 0.16, W - 2 * SILL_W));
   const wallF = mesh(wallGeo, mats.alu); wallF.position.set(L / 2 - 0.03, 0.01, 0);
   const wallR = mesh(wallGeo, mats.alu); wallR.position.set(-L / 2 + 0.03, 0.01, 0);
-  part('Tray', [mesh(floor, mats.alu), wallF, wallR], [0, 0, 0], [0.5, -0.085, 0.58]);
+  const ribs4 = [];
+  for (const z of [-0.48, -0.32, -0.16, 0, 0.4]) for (const x of [-0.686, 0.686]) ribs4.push(rbox(0.012, 0.14, 0.014, 0.003).translate(x, 0.01, z));
+  part('Tray', [mesh(floor, mats.alu), wallF, wallR, mesh(worldUV(mergeGeometries(ribs4)), mats.alu)], [0, 0, 0], [0.5, -0.085, 0.58]);
 
   // ---- Sills: multi-cell hollow section, with a crush "shape key" on Sill_L ---------------------
   const sillHoles = [];
@@ -198,7 +201,11 @@ export function buildPack() {
     tabMesh.setMatrixAt(i * 2, m4.makeTranslation(c.x, 0.033, c.z - 0.14));
     tabMesh.setMatrixAt(i * 2 + 1, m4.makeTranslation(c.x, 0.033, c.z + 0.14));
   });
-  part('Cells', [cellMesh, tabMesh], [0, 0, 0], [-0.35, 0.03, 0.3]);
+  const bars = [];
+  for (const side of [-1, 1]) for (let g = 0; g < 4; g++) for (const row of [-1, 1]) for (const dz of [-0.14, 0.14]) {
+    bars.push(rbox(8 * 0.0155 + 0.012, 0.003, 0.024, 0.001).translate(side * (0.05 + g * 0.153 + 4 * 0.0155), 0.0375, row * 0.26 + dz));
+  }
+  part('Cells', [cellMesh, tabMesh, mesh(mergeGeometries(bars), mats.tab)], [0, 0, 0], [-0.35, 0.03, 0.3]);
 
   // ---- Barrier: fire/heat liner under the lid + walls between cell groups ---------------------------
   const sheet = new THREE.BoxGeometry(L - 0.12, 0.003, W - 2 * SILL_W - 0.01);
@@ -216,10 +223,11 @@ export function buildPack() {
   // ---- Lid: flat SMC plate with ribs and perimeter bolts ---------------------------------------
   const lid = rbox(L, 0.006, W);
   lid.translate(0, 0.097, 0);
-  const ribs = [];
+  const flange = worldUV(extrude(rectShape(L, W, [[0, 0, L / 2 - 0.032, W / 2 - 0.032]]), 0.004, 1, 0.0008).rotateX(-Math.PI / 2).translate(0, 0.102, 0));
+  const ribs = [flange];
   for (const z of [-0.3, 0, 0.3]) ribs.push(rbox(L - 0.2, 0.01, 0.014, 0.003).translate(0, 0.105, z));
   for (const x of [-0.45, -0.15, 0.15, 0.45]) ribs.push(rbox(0.014, 0.01, W - 0.2, 0.003).translate(x, 0.105, 0));
-  const lidMesh = mesh(worldUV(mergeGeometries([lid, ...ribs])), mats.lid);
+  const lidMesh = mesh(worldUV(mergeGeometries([lid, ...ribs].map((g) => (g.index ? g.toNonIndexed() : g)))), mats.lid);
   const spots = [];
   for (let i = 0; i < 12; i++) {
     const x = -0.62 + i * (1.24 / 11);
@@ -230,10 +238,12 @@ export function buildPack() {
     spots.push([-0.685, z], [0.685, z]);
   }
   const bolts = shadow(new THREE.InstancedMesh(boltGeo, mats.bolt, spots.length));
-  spots.forEach(([x, z], i) => bolts.setMatrixAt(i, m4.makeTranslation(x, 0.1, z)));
+  spots.forEach(([x, z], i) => bolts.setMatrixAt(i, m4.makeTranslation(x, 0.104, z)));
   const label = new THREE.Mesh(new THREE.PlaneGeometry(0.24, 0.12).rotateX(-Math.PI / 2).translate(0.43, 0.1005, -0.16), mats.label);
   label.receiveShadow = true;
-  part('Lid', [lidMesh, bolts, label], [0, 0, 0], [0.45, 0.105, 0.35]);
+  const plugs = [-0.3, 0.3].map((z) => mesh(worldUV(mergeGeometries([rbox(0.09, 0.05, 0.075, 0.012).translate(0.58, 0.125, z), new THREE.CylinderGeometry(0.02, 0.02, 0.012, 20).toNonIndexed().translate(0.58, 0.153, z)])), mats.hv));
+  const cable = mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([[0.62, 0.15, 0.3], [0.66, 0.175, 0.2], [0.66, 0.178, 0], [0.66, 0.175, -0.2], [0.62, 0.15, -0.3]].map((p) => new THREE.Vector3(...p))), 40, 0.011, 10), mats.hv);
+  part('Lid', [lidMesh, bolts, label, ...plugs, cable], [0, 0, 0], [0.45, 0.105, 0.35]);
 
   // ---- Seal: sealant bead around the perimeter, 6 mm squeezed to ~4 mm [88] --------------------------
   const pts = [];
@@ -284,7 +294,8 @@ export function buildPack() {
   const ports = [-0.22, 0.22].map((z) => {
     const p = mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.09, 20).rotateZ(Math.PI / 2).translate(L / 2 + 0.085, -0.085, z), mats.coolant);
     const f = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.01, 20).rotateZ(Math.PI / 2).translate(L / 2 + 0.125, -0.085, z), mats.coolant);
-    return [p, f];
+    const clamp = mesh(new THREE.TorusGeometry(0.0245, 0.004, 8, 24).rotateY(Math.PI / 2).translate(L / 2 + 0.07, -0.085, z), mats.vent);
+    return [p, f, clamp];
   }).flat();
   part('Coolant', [mesh(tube, flowMat), ...ports], [0, 0, 0], [L / 2 + 0.1, -0.085, -0.3]);
 
@@ -316,11 +327,13 @@ export function buildPack() {
       }
     },
     /** names = parts to keep solid, the rest fade to `dim` opacity; null = everything solid */
-    focus(names, dim = 0.12) {
+    focus(names, dim = 0.12, dt = 0) { // dt > 0: ease towards the target instead of snapping
+      const k = dt ? 1 - Math.exp(-dt * 7) : 1;
       for (const [n, g] of Object.entries(parts)) {
         const on = !names || names.includes(n);
         for (const m of g.userData.mats) {
-          const op = on ? m.userData.base : Math.min(m.userData.base, dim);
+          const to = on ? m.userData.base : Math.min(m.userData.base, dim);
+          const op = m.opacity + (to - m.opacity) * k;
           m.opacity = op;
           m.depthWrite = op >= 0.98;
         }

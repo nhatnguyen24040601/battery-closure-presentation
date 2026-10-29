@@ -8,13 +8,11 @@ const P0 = '0 · Opening', P1 = '1 · The enclosure', P2 = '2 · Design constrai
 export default [
   {
     part: P0, layout: 'title', sec: 25, scene: 'vehicle', short: 'Title',
-    title: 'Building the Box That Guards EV Batteries',
+    title: 'The battery pack enclosure',
     html: `${slot('', '', 'bleed')}
       <div class="ttl"><div class="k">Material selection for an EV battery pack enclosure</div>
-        <h1>Building the Box That <em>Guards</em> EV Batteries</h1>
-        <p>Material Selection for an EV Battery Pack Enclosure</p></div>
-      <div class="who"><b>${meta.author}</b> · ${meta.course} · ${meta.date}</div>
-      <div class="note3d" style="left:auto;right:30px;bottom:24px">Illustrative generic EV, not to scale · no brand model</div>`,
+        <h1>The battery pack <em>enclosure</em></h1></div>
+      <div class="who"><b>${meta.author}</b> · ${meta.course} · ${meta.date}</div>`,
     script: `Good morning everyone. Every electric car carries a battery that costs about a third of the whole car. Today I want to talk about the box that protects it: the battery pack enclosure. I will show how engineers choose its material, design its structure, and manufacture it.`,
     tip: 'Pack glows under the floor, camera orbits 360° and loops. → : the camera zooms into the pack.',
   },
@@ -57,20 +55,22 @@ export default [
     tip: '→ steps: ① assembled box · ② it explodes into parts · ③ one cell · ④ a module · ⑤ the pack. Extra facts for Q&A: main parts per Audi e-tron [7]; one real aluminium enclosure weighs 149.4 kg [10]; box size as studied in [8].',
   },
   {
-    part: P1, sec: 80, scene: 'history', stops: [1.9, 5.0, 8.7, 12], short: 'History',
+    part: P1, sec: 80, scene: 'history', stops: [2.8, 6.8, 10.8, 14.8, 18.8, 22.8], short: 'History',
     title: '130 years: from wooden box to load-bearing floor',
     html: `<div style="display:grid;grid-template-rows:1fr auto;gap:26px;height:100%">
-        ${slot('Illustrative models; only the T-pack dimensions are from [19]')}
-        <div class="tl">
+        ${slot()}
+        <div class="tl" style="grid-template-columns:repeat(6,1fr);gap:16px">
           <div class="ms" data-h="0"><b>1912</b>Wooden battery boxes</div>
-          <div class="ms" data-h="1"><b>2009</b>T-shaped pack as structure</div>
-          <div class="ms" data-h="2"><b>2011–14</b>Flat floor pack + underbody shield</div>
-          <div class="ms" data-h="3"><b>2022</b>Lid = car floor (BYD CTB)</div>
+          <div class="ms" data-h="1"><b>1990s</b>Heavy pack under the floor</div>
+          <div class="ms" data-h="2"><b>2009</b>T-shaped pack as structure</div>
+          <div class="ms" data-h="3"><b>2011–14</b>Flat floor pack + underbody shield</div>
+          <div class="ms" data-h="4"><b>2018</b>Aluminium crash frame</div>
+          <div class="ms" data-h="5"><b>2019–22</b>Lid = car floor (BYD CTB)</div>
         </div>
       </div>`,
     sources: '[11] US DOE · [12] VEVA · [18] WardsAuto 2009 · [22] Green Car Reports 2011 · [23] MIT Tech Review 2014 · [36] Gasgoo 2022 · also [13][16][26][31][32]',
-    script: `The enclosure has a surprisingly long history. Around 1900, electric cars were about a third of all vehicles in the US, but their batteries were simply cargo. A 1912 Detroit Electric kept them in wooden boxes. The modern story began in 1990, when California required carmakers to sell zero-emission cars. GM's EV1 carried a lead-acid pack of 533 kilograms, and Toyota's RAV4 EV put its pack entirely under the cabin floor. With lithium-ion batteries, the pack started to carry the car. The Chevrolet Volt used a T-shaped pack as a structural element, and Tesla's Model S made the pack the floor itself. But a flat floor pack has a weak point: the underside. In 2013, road debris pierced Model S packs and caused fires, so Tesla added a titanium and aluminium shield. After 2018, premium cars used aluminium crash frames. And since 2019, Chinese makers removed the module layer completely. In BYD's design, the lid of the battery is now the floor of the cabin.`,
-    tip: 'Each → moves the camera to the next era. Milestones for the script: 1990 California ZEV · EV1 533 kg [13] · RAV4 EV [16] · 2014 Model S debris fires [23] · 2018–20 Audi e-tron, VW MEB [7][26] · 2019 CATL CTP, BYD Blade [31][32].',
+    script: `The enclosure has a long history. In 1912, a Detroit Electric kept its batteries in wooden boxes. In the 1990s, GM's EV1 carried a lead-acid pack of 533 kilograms, and the pack moved under the floor. With lithium-ion, the Chevrolet Volt used a T-shaped pack as part of the structure, and Tesla's Model S made the pack the floor. But road debris pierced the underside in 2013, so Tesla added a metal shield. After 2018, premium cars used aluminium crash frames. Today, in BYD's design, the lid of the battery is the floor of the cabin.`,
+    tip: 'Each → moves the camera to the next era (six steps). Milestones for the script: 1990 California ZEV · EV1 533 kg [13] · RAV4 EV [16] · 2014 Model S debris fires [23] · 2018–20 Audi e-tron, VW MEB [7][26] · 2019 CATL CTP, BYD Blade [31][32].',
   },
   {
     part: P1, sec: 55, scene: null, short: 'Market',
@@ -87,6 +87,7 @@ export default [
           <div class="hbar"><span><i class="dot al"></i>Aluminium</span><div class="track"><div class="fill" style="width:49%;background:var(--al)"></div></div><span class="v">49%</span></div>
           <div class="hbar"><span><i class="dot st"></i>Steel</span><div class="track"><div class="fill" style="width:38.9%;background:var(--steel)"></div></div><span class="v">39%</span></div>
           <div class="hbar"><span><i class="dot smc"></i>Composites</span><div class="track"><div class="fill" style="width:8.1%;background:var(--smc)"></div></div><span class="v">8%</span></div>
+          <div class="hbar"><span><i class="dot" style="background:var(--mute)"></i>Other</span><div class="track"><div class="fill" style="width:4%;background:var(--mute)"></div></div><span class="v">4%</span></div>
         </div>
       </div>`,
     sources: '[1] ICCT 2023 · [2] IEA Global EV Outlook 2026 · [40] Global Market Insights · [42] Del Pero et al., Machines 2020',

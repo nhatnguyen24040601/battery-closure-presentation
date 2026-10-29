@@ -6,19 +6,6 @@ const P3 = '3 · Ranking the materials', P4 = '4 · Structure design', P5 = '5 �
 const bar = (label, dot, value, max, text, color, extra = '') =>
   `<div class="hbar" style="grid-template-columns:420px 1fr 190px"><span>${dot ? `<i class="dot ${dot}"></i>` : ''}${label}</span><div class="track"><div class="fill now ${extra}" style="width:${(value / max) * 100}%;background:${color}"></div></div><span class="v">${text}</span></div>`;
 
-// slide 12: weighted score (out of 5) in two weight scenarios; scenario B appears on step 1
-const SCORES = [['Press-hardened steel', 'st', 3.75, 3.25], ['Aluminium', 'al', 3.15, 3.3], ['CFRP', 'cf', 3.0, 3.3], ['FR glass-fibre SMC', 'smc', 3.0, 2.75], ['Magnesium', 'mg', 2.75, 3.1], ['Stainless 304', '', 2.75, 2.5]];
-const col = (v, c, win, s) => `<div ${s ? `data-s="${s}"` : ''} style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;width:46%">
-  <b style="font-size:30px;margin-bottom:6px;${win ? 'color:#fff' : 'color:#c5d3ea;font-weight:600'}">${v.toFixed(2)}</b>
-  <div style="width:100%;height:${(v / 5) * 100}%;background:${c};border-radius:10px 10px 0 0;${win ? 'box-shadow:0 0 0 4px #fff inset' : 'opacity:.85'}"></div></div>`;
-const chart12 = `<div style="height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:14px">
-  <div class="legend"><span><i class="dot" style="background:#f59e0b"></i>Cost &amp; fire focus</span><span data-s="1"><i class="dot" style="background:var(--accent)"></i>Range focus</span><span class="small">score out of 5</span></div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;align-items:end;border-bottom:2px solid rgba(255,255,255,.3);background:repeating-linear-gradient(to top,rgba(255,255,255,.07) 0 1px,transparent 1px 20%);padding:0 8px">
-    ${SCORES.map(([, , a, b]) => `<div style="display:flex;gap:10px;align-items:flex-end;justify-content:center;height:100%">${col(a, '#f59e0b', a === 3.75)}${col(b, 'var(--accent)', b === 3.3, 1)}</div>`).join('')}
-  </div>
-  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:22px;font-size:25px;text-align:center;line-height:1.2;padding:0 8px">${SCORES.map(([n, d]) => `<span>${d ? `<i class="dot ${d}"></i>` : ''}${n}</span>`).join('')}</div>
-</div>`;
-
 // weights (%) for the backup slide: [criterion, cost & fire, range]
 const W12 = [['Panel stiffness per kg', 20, 30], ['Strength / crash', 15, 15], ['Fire resistance', 15, 10], ['Cost', 20, 10], ['Fatigue &amp; corrosion', 10, 10], ['EMI shielding', 5, 5], ['Thermal conductivity', 5, 10], ['CO₂ &amp; recycling', 10, 10], ['Optical', 0, 0]];
 
@@ -63,19 +50,6 @@ export default [
     script: `Three peer-reviewed studies are especially useful. Gökciler and Geren, 2026, compared stainless steel, aluminium and carbon fibre. When only mass and cost matter, aluminium wins. When crash energy is added, aluminium is best at around 60 kilometres per hour, but carbon fibre is better above 100. Li and colleagues, 2024, looked at carbon emissions over the whole life of a battery box with equal stiffness. Compared with steel, aluminium cut global warming impact by 44 percent, and carbon-fibre SMC by 35 percent. Fragiadaki and colleagues, 2026, only counted emissions up to the factory gate. There, aluminium was the lightest, but glass-fibre SMC had the lowest carbon per kilogram and the lowest cost. These results do not contradict each other. They measure different things. So every ranking must say clearly what it measures and how much each criterion matters.`,
     tip: 'One study per →, then the key message: per kg at the factory gate aluminium is penalised; over the whole life aluminium wins [5][6]. Gökciler: crash best Al at ~60 km/h, CFRP above 100 km/h.',
   },
-  {
-    part: P3, sec: 90, scene: null, short: 'Step 3 · Weighted ranking',
-    title: 'Step 3 · Weights decide: steel for cost, Al for range',
-    html: `<div style="display:grid;grid-template-rows:1fr auto auto;gap:16px;height:100%">
-        ${chart12}
-        <div class="callout teal" data-s="2">Move 10–15 points of weight and the winner changes → <b>priorities decide</b></div>
-        <div class="small"><b>Own synthesis:</b> weighted sum of 8 criteria, scores 1–5 from the cited data (weights and example in the backup slides)</div>
-      </div>`,
-    sources: 'Scores based on [4][5][6][51]–[59][64][79]; method: weighted-sum multi-criteria decision making',
-    script: `Step three is my own weighted ranking. I want to be clear that this is my synthesis of the data, not a published result. I chose eight criteria, gave each a weight, and scored each material from one to five using fixed rules based on the data you have seen. Optical properties get zero weight. I ran two scenarios. In the first, cost and fire resistance weigh more, like a mass-market car under China's new fire rule. Here, press-hardened steel wins clearly with 3.75, ahead of aluminium with 3.15. In the second scenario, range and cooling weigh more, like a long-range premium car. Now aluminium and carbon fibre tie at 3.30, and steel drops to third. Some results do not change: stainless steel and magnesium never rise above fourth. The most important lesson is this: moving only 10 to 15 percentage points of weight changes the winner. So the material choice is really a decision about priorities. And because no single material wins everything, the best enclosure uses each material where it works best. That is the idea behind the structure design.`,
-    tip: '→ ① scenario “cost and fire” (steel 3.75 first) · ② scenario “range” (Al = CFRP 3.30, steel third) · ③ the lesson. Bridge to Part 4: “No single winner, so the structure must put each material where it works best.” Weights table and worked example: backup slide.',
-  },
-
   // ------------------------------------------------------------------------------------------ Part 4
   {
     part: P4, sec: 70, scene: 'anatomy', stops: [3.0, 5.0, 7.0, 9.0, 11.0, 15.6], short: 'Anatomy',
